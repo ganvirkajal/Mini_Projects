@@ -1,1 +1,252 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Projects
+{
+    public class Book
+    {
+        public int BookId { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public bool IsIssued { get; set; } = false;
+
+        public void DisplayBookDetails()
+        {
+            Console.WriteLine($"Book ID: {BookId}, Title: {Title}, Author: {Author}, Issued: {IsIssued}");
+        }
+    }
+
+    public class Member
+    {
+        public int MemberId { get; set; }
+        public string Name { get; set; }
+        public List<Book> IssuedBooks { get; set; } = new List<Book>();
+
+        public void DisplayMemberDetails()
+        {
+            Console.WriteLine($"Member ID: {MemberId}, Name: {Name}, Issued Books: {IssuedBooks.Count}");
+        }
+    }
+
+    public class Library
+    {
+        public List<Book> Books { get; set; } = new List<Book>();
+        public List<Member> Members { get; set; } = new List<Member>();
+
+        public void AddBook(Book book)
+        {
+            Books.Add(book);
+            Console.WriteLine("Book added successfully.");
+        }
+
+        public void RemoveBook(int bookId)
+        {
+            var book = Books.FirstOrDefault(b => b.BookId == bookId);
+            if (book != null)
+            {
+                Books.Remove(book);
+                Console.WriteLine("Book removed successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Error: Book not found.");
+            }
+        }
+
+        public void AddMember(Member member)
+        {
+            Members.Add(member);
+            Console.WriteLine("Member added successfully.");
+        }
+
+        public void RemoveMember(int memberId)
+        {
+            var member = Members.FirstOrDefault(m => m.MemberId == memberId);
+            if (member != null)
+            {
+                Members.Remove(member);
+                Console.WriteLine("Member removed successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Error: Member not found.");
+            }
+        }
+
+        public void IssueBook(int bookId, int memberId)
+        {
+            var book = Books.FirstOrDefault(b => b.BookId == bookId);
+            var member = Members.FirstOrDefault(m => m.MemberId == memberId);
+
+            if (book == null)
+            {
+                Console.WriteLine("Error: Book not found.");
+                return;
+            }
+
+            if (member == null)
+            {
+                Console.WriteLine("Error: Member not found.");
+                return;
+            }
+
+            if (book.IsIssued)
+            {
+                Console.WriteLine("Error: Book already issued.");
+                return;
+            }
+
+            book.IsIssued = true;
+            member.IssuedBooks.Add(book);
+            Console.WriteLine("Book issued successfully.");
+        }
+
+        public void ReturnBook(int bookId, int memberId)
+        {
+            var book = Books.FirstOrDefault(b => b.BookId == bookId);
+            var member = Members.FirstOrDefault(m => m.MemberId == memberId);
+
+            if (book == null)
+            {
+                Console.WriteLine("Error: Book not found.");
+                return;
+            }
+
+            if (member == null)
+            {
+                Console.WriteLine("Error: Member not found.");
+                return;
+            }
+
+            if (!book.IsIssued)
+            {
+                Console.WriteLine("Error: Book is not currently issued.");
+                return;
+            }
+
+            book.IsIssued = false;
+            member.IssuedBooks.Remove(book);
+            Console.WriteLine("Book returned successfully.");
+        }
+
+        public void ListAllBooks()
+        {
+            Console.WriteLine("Books in the library:");
+            foreach (var book in Books)
+            {
+                book.DisplayBookDetails();
+            }
+        }
+
+        public void ListAllMembers()
+        {
+            Console.WriteLine("Library members:");
+            foreach (var member in Members)
+            {
+                member.DisplayMemberDetails();
+            }
+        }
+    }
+
+    class Library_Management_System
+    {
+        static void Main()
+        {
+            Library library = new Library();
+            int choice;
+
+            do
+            {
+                Console.WriteLine("\n===== Library Management Menu =====");
+                Console.WriteLine("1. Add Book");
+                Console.WriteLine("2. Remove Book");
+                Console.WriteLine("3. Add Member");
+                Console.WriteLine("4. Remove Member");
+                Console.WriteLine("5. Issue Book");
+                Console.WriteLine("6. Return Book");
+                Console.WriteLine("7. List All Books");
+                Console.WriteLine("8. List All Members");
+                Console.WriteLine("9. Exit");
+                Console.Write("Enter your choice: ");
+
+                bool isValid = int.TryParse(Console.ReadLine(), out choice);
+
+                if (!isValid)
+                {
+                    Console.WriteLine("Invalid input. Please enter a number.");
+                    continue;
+                }
+
+                switch (choice)
+                {
+                    case 1:
+                        Console.Write("Enter Book ID: ");
+                        int bookId = int.Parse(Console.ReadLine());
+                        Console.Write("Enter Title: ");
+                        string title = Console.ReadLine();
+                        Console.Write("Enter Author: ");
+                        string author = Console.ReadLine();
+                        library.AddBook(new Book { BookId = bookId, Title = title, Author = author });
+                        break;
+
+                    case 2:
+                        Console.Write("Enter Book ID to remove: ");
+                        int removeBookId = int.Parse(Console.ReadLine());
+                        library.RemoveBook(removeBookId);
+                        break;
+
+                    case 3:
+                        Console.Write("Enter Member ID: ");
+                        int memberId = int.Parse(Console.ReadLine());
+                        Console.Write("Enter Name: ");
+                        string name = Console.ReadLine();
+                        library.AddMember(new Member { MemberId = memberId, Name = name });
+                        break;
+
+                    case 4:
+                        Console.Write("Enter Member ID to remove: ");
+                        int removeMemberId = int.Parse(Console.ReadLine());
+                        library.RemoveMember(removeMemberId);
+                        break;
+
+                    case 5:
+                        Console.Write("Enter Book ID to issue: ");
+                        int issueBookId = int.Parse(Console.ReadLine());
+                        Console.Write("Enter Member ID: ");
+                        int issueMemberId = int.Parse(Console.ReadLine());
+                        library.IssueBook(issueBookId, issueMemberId);
+                        break;
+
+                    case 6:
+                        Console.Write("Enter Book ID to return: ");
+                        int returnBookId = int.Parse(Console.ReadLine());
+                        Console.Write("Enter Member ID: ");
+                        int returnMemberId = int.Parse(Console.ReadLine());
+                        library.ReturnBook(returnBookId, returnMemberId);
+                        break;
+
+                    case 7:
+                        library.ListAllBooks();
+                        break;
+
+                    case 8:
+                        library.ListAllMembers();
+                        break;
+
+                    case 9:
+                        Console.WriteLine("Exiting the system. Goodbye!");
+                        break;
+
+                    default:
+                        Console.WriteLine("Invalid option. Please choose again.");
+                        break;
+                }
+            } while (choice != 9);
+        }
+    }
+}
+
 
