@@ -1,0 +1,215 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Projects
+{
+    public class Menu
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Price { get; set; }
+
+        public Menu(int id, string name, int price)
+        {
+            Id = id;
+            Name = name;
+            Price = price;
+        }
+
+        public override string ToString()
+        {
+            return $"[{Id}] -> {Name} = {Price} Rs";
+        }
+    }
+
+    public class OrderItem
+    {
+        public Menu Menu { get; set; }
+        public int Quantity { get; set; }
+
+        public OrderItem(Menu menu, int quantity)
+        {
+            Menu = menu;
+            Quantity = quantity;
+        }
+
+        public int GetTotal()
+        {
+            return Menu.Price * Quantity;
+        }
+
+        public override string ToString()
+        {
+            return $"{Menu.Name} x {Quantity} = {GetTotal()} Rs";
+        }
+    }
+
+    public class Restaurant
+    {
+        private List<Menu> menuList = new List<Menu>();
+        private List<OrderItem> orders = new List<OrderItem>();
+
+        public void LoadMenu()
+        {
+            menuList.Clear();
+            menuList.Add(new Menu(1, "Masala Dosa", 60));
+            menuList.Add(new Menu(2, "Idli Sambar", 40));
+            menuList.Add(new Menu(3, "Pav Bhaji", 80));
+            menuList.Add(new Menu(4, "Chole Bhature", 90));
+            menuList.Add(new Menu(5, "Veg Fried Rice", 110));
+            menuList.Add(new Menu(6, "Paneer Butter Masala", 150));
+            menuList.Add(new Menu(7, "Chicken Curry", 180));
+            menuList.Add(new Menu(8, "Butter Naan", 30));
+            menuList.Add(new Menu(9, "Cold Coffee", 50));
+            menuList.Add(new Menu(10, "Gulab Jamun", 40));
+        }
+
+        public void ShowMenu()
+        {
+            Console.WriteLine("\n===> MENU <===");
+            LoadMenu();
+            foreach (var item in menuList)
+            {
+                Console.WriteLine(item.ToString());
+            }
+        }
+
+        public void PlaceOrder()
+        {
+            bool continueOrder = true;
+
+            while (continueOrder)
+            {
+                Console.Write("\n-> Enter Item Number: ");
+                bool validId = int.TryParse(Console.ReadLine(), out int id);
+
+                if (!validId)
+                {
+                    Console.WriteLine("Invalid item number.");
+                    continue;
+                }
+
+                var menuItem = menuList.Find(m => m.Id == id);
+                if (menuItem == null)
+                {
+                    Console.WriteLine("Item not found in the menu.");
+                    continue;
+                }
+
+                Console.Write("-> Enter Quantity: ");
+                bool validQty = int.TryParse(Console.ReadLine(), out int qty);
+                if (!validQty || qty <= 0)
+                {
+                    Console.WriteLine("Invalid quantity.");
+                    continue;
+                }
+
+                orders.Add(new OrderItem(menuItem, qty));
+                Console.WriteLine($"Added {menuItem.Name} x {qty} to your order.");
+
+                Console.Write("-> Do you want to add another item? (yes/no): ");
+                string response = Console.ReadLine().ToLower();
+
+                if (response != "yes")
+                {
+                    continueOrder = false;
+                }
+            }
+        }
+
+        public void ViewOrder()
+        {
+            if (orders.Count == 0)
+            {
+                Console.WriteLine("-> No items in your order yet.");
+                return;
+            }
+
+            Console.WriteLine("\n===> Your Order <===");
+            foreach (var item in orders)
+            {
+                Console.WriteLine(item.ToString());
+            }
+        }
+
+        public void Checkout()
+        {
+            if (orders.Count == 0)
+            {
+                Console.WriteLine("-> Your order is empty. Please add items before checkout.");
+                return;
+            }
+
+            int totalAmount = 0;
+            Console.WriteLine("\n===> Final Bill <===");
+
+            foreach (var item in orders)
+            {
+                Console.WriteLine(item.ToString());
+                totalAmount += item.GetTotal();
+            }
+
+            Console.WriteLine("-----------------------------");
+            Console.WriteLine($"Total = {totalAmount} Rs");
+            Console.WriteLine("Thank you for dining with us!");
+
+            orders.Clear(); // Clear order after billing
+        }
+    }
+
+    class Hotel_Management_System
+    {
+        static void Main(string[] args)
+        {
+            Restaurant res = new Restaurant();
+            int choice;
+
+            Console.WriteLine("===== Welcome to Hotel Sahyadri =====");
+
+            do
+            {
+                Console.WriteLine("\n-> Choose an option:");
+                Console.WriteLine("1 -> View Menu");
+                Console.WriteLine("2 -> Place Order");
+                Console.WriteLine("3 -> View Current Order");
+                Console.WriteLine("4 -> Generate Bill");
+                Console.WriteLine("5 -> Exit");
+                Console.Write("Enter your choice: ");
+
+                bool validChoice = int.TryParse(Console.ReadLine(), out choice);
+
+                if (!validChoice)
+                {
+                    Console.WriteLine("-> Invalid input. Please enter a number.");
+                    continue;
+                }
+
+                switch (choice)
+                {
+                    case 1:
+                        res.ShowMenu();
+                        break;
+                    case 2:
+                        res.PlaceOrder();
+                        break;
+                    case 3:
+                        res.ViewOrder();
+                        break;
+                    case 4:
+                        res.Checkout();
+                        break;
+                    case 5:
+                        Console.WriteLine("-> Thank you! Visit again.");
+                        break;
+                    default:
+                        Console.WriteLine("-> Invalid option. Please choose again.");
+                        break;
+                }
+
+            } while (choice != 5);
+        }
+    }
+}
